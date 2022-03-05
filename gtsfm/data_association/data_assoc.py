@@ -77,7 +77,9 @@ class DataAssociation(NamedTuple):
             A tuple of GtsfmData with cameras and tracks, and a GtsfmMetricsGroup with data association metrics
         """
         # generate tracks for 3D points using pairwise correspondences
-        tracks_2d = SfmTrack2d.generate_tracks_from_pairwise_matches(corr_idxs_dict, keypoints_list)
+        tracks_2d, multiple_observation_error_pct = SfmTrack2d.generate_tracks_from_pairwise_matches(
+            corr_idxs_dict, keypoints_list
+        )
 
         if self.save_track_patches_viz and images is not None:
             io_utils.save_track_visualizations(tracks_2d, images, save_dir=os.path.join("plots", "tracks_2d"))
@@ -168,6 +170,7 @@ class DataAssociation(NamedTuple):
                     store_full_data=False,
                 ),
                 GtsfmMetric(name="number_cameras", data=len(connected_data.get_valid_camera_indices())),
+                GtsfmMetric(name="pct_tracks_duplicate_observation", data=multiple_observation_error_pct),
             ],
         )
 

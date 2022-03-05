@@ -114,9 +114,12 @@ class TestSfmTrack2d(GtsamTestCase):
         dummy_keypoints_list = get_dummy_keypoints_list()
         dummy_matches_dict = get_dummy_matches()
 
-        tracks = SfmTrack2d.generate_tracks_from_pairwise_matches(dummy_matches_dict, dummy_keypoints_list)
+        tracks, multiple_observation_pct = SfmTrack2d.generate_tracks_from_pairwise_matches(
+            dummy_matches_dict, dummy_keypoints_list
+        )
         # len(track) value for toy case strictly
         self.assertEqual(len(tracks), 4, "tracks incorrectly mapped")
+        self.assertEqual(multiple_observation_pct, 0)
 
     def test_generate_tracks_from_pairwise_matches_with_duplicates(
         self,
@@ -132,8 +135,11 @@ class TestSfmTrack2d(GtsamTestCase):
         # add erroneous correspondence
         malformed_matches_dict[(1, 1)] = np.array([[0, 3]])
 
-        tracks = SfmTrack2d.generate_tracks_from_pairwise_matches(malformed_matches_dict, dummy_keypoints_list)
+        tracks, multiple_observation_pct = SfmTrack2d.generate_tracks_from_pairwise_matches(
+            malformed_matches_dict, dummy_keypoints_list
+        )
 
         # check that the length of the observation list corresponding to each key
         # is the same. Only good tracks will remain
         self.assertEqual(len(tracks), 4, "Tracks not filtered correctly")
+        self.assertEqual(multiple_observation_pct, 0.2)
