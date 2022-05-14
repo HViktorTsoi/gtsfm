@@ -198,6 +198,9 @@ class TranslationAveraging1DSFM(TranslationAveragingBase):
                 initial.insertPoint3(i, wTi.value.translation())
         return initial
 
+    def _filter_priors_and_measurements(i2Ui1_dict, relative_pose_priors):
+        return i2Ui1_dict, relative_pose_priors
+    
     # TODO(ayushbaid): Change wTi_initial to Pose3.
     def run(
         self,
@@ -227,6 +230,8 @@ class TranslationAveraging1DSFM(TranslationAveragingBase):
             A GtsfmMetricsGroup of 1DSfM metrics.
         """
         logger.info("Running translation averaging on {} unit translations".format(len(i2Ui1_dict)))
+
+        i2Ui1_dict, relative_pose_priors = self._filter_priors_and_measurements(i2Ui1_dict, relative_pose_priors)
         noise_model = gtsam.noiseModel.Isotropic.Sigma(NOISE_MODEL_DIMENSION, NOISE_MODEL_SIGMA)
         if self._robust_measurement_noise:
             huber_loss = gtsam.noiseModel.mEstimator.Huber.Create(HUBER_LOSS_K)
